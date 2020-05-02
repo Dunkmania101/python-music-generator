@@ -10,13 +10,13 @@ sf2 = ""
 
 # Tell what sound driver to use for the sf2 sound:
 # ("alsa" may be needed for linux users)
-sound_driver = "alsa"
+# sound_driver = "alsa"
 
-# Set to the desired time between / length of notes:
+# Set to the desired time between / length of notes in seconds:
 seconds = 0.3
 
 # Set to the desired number of notes:
-stop_point = 5000
+stop_point = 100
 # ----------
 
 
