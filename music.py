@@ -8,9 +8,10 @@ sf2 = ""
 # Default pack installed with fluidsynth:
 # sf2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
 
-# Tell what sound driver to use for the sf2 sound:
+# Tell what sound driver to use for the sf2 sound
 # ("alsa" may be needed for linux users)
-# sound_driver = "alsa"
+# Leave string empty for system default:
+sound_driver = ""
 
 # Set to the desired time between / length of notes in seconds:
 seconds = 0.3
