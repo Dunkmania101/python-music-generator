@@ -1,7 +1,3 @@
-from random import randint as rint
-from time import sleep
-from mingus.midi import fluidsynth
-
 # ----------
 # Path to sf2 file (Do not output sound if empty string):
 sf2 = ""
@@ -28,20 +24,28 @@ velocity = 100
 # ----------
 
 
-if sf2 != "" and sound_driver != "":
-    fluidsynth.init(sf2, sound_driver)
-elif sf2 != "" and sound_driver == "":
-    fluidsynth.init(sf2)
-elif sf2 == "" and sound_driver != "":
-    fluidsynth.init(None, sound_driver)
-elif sf2 == "" and sound_driver == "":
-    fluidsynth.init(None)
+# ----------
+# Setup:
+# Prevent breakage from user error in parameters:
+stop_point = int(stop_point)
+multiplier = int(multiplier)
+velocity = int(velocity)
+# Imports:
+from random import randint as rint
+if sf2 != "":
+    from time import sleep
+    from mingus.midi import fluidsynth
+    if sound_driver == "":
+        fluidsynth.init(sf2)
+    else:
+        fluidsynth.init(sf2, sound_driver)
+# ----------
 
 
 # ----------
 # Main mechanism:
-notes = [rint(1, 6)]
-notes.append(int(notes[-1]*rint(4, 6)))
+notes = [rint(1, 12)]
+notes.append(notes[-1]*rint(4, 6))
 len_phrase = rint(6, 18)
 for l1 in range(0, stop_point):
     if len(notes) > len_phrase:
@@ -58,10 +62,13 @@ for l1 in range(0, stop_point):
             notes.append(int(notes[-rint(1, 2)]/rint(4, 6)))
         else:
             notes.append(int(notes[-rint(1, 2)]*rint(4, 6)))
+for index, note in enumerate(notes):
+    notes[index] *= multiplier
 print(notes)
 # ----------
 
 
+# ----------
 # This part is supposed to print out the actual musical notes
 # instead of the ugly numbers.
 # Broken for now...
@@ -77,17 +84,22 @@ print(notes)
 #     12: "b"
 # }
 #
-# lout = []
+# key_out = []
 # for out in notes:
 #     if out in keys:
-#         lout.append(keys[out])
+#         key_out.append(keys[out])
 #     else:
 #         octave = int(out/12)
-#         lout.append(f"{keys[out+1-(octave*12)]} oct. {octave}")
+#         key_out.append(f"{keys[out+1-(octave*12)]} oct. {octave}")
 # print(lout)
+# ----------
 
+
+# ----------
+# Play result if enabled
 if sf2 != "":
     for play in notes:
-        fluidsynth.play_Note(play*multiplier, 0, velocity),
-        fluidsynth.play_Note(play*multiplier/rint(2, 3), 0, velocity)
+        fluidsynth.play_Note(play, 0, velocity),
+        fluidsynth.play_Note(play/rint(2, 3), 0, velocity)
         sleep(seconds)
+# ----------

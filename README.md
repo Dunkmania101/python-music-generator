@@ -15,13 +15,18 @@ The actual mechanism is a bit more complex. For example, that list does not incl
 where it occasionally repeats previous segments for better sounding music.
 
 
+There are a few parameters that can be changed at the top of the "music.py" file.
+These include the length of the piece, the way the notes are played and settings for the sound system.
+
+
 It plays through Fluidsynth with an sf2 pack.
 Feel free to change the output system if you need / want something else.
+
 
 __Installing Dependencies ==>__
 
 For ubuntu:
-$ sudo apt install python3 python3-pip fluidsynth 
+$ sudo apt install python3 python3-pip fluidsynth
 
 For other distributions:
 Use your package manager to install __python3 python3-pip fluidsynth__
