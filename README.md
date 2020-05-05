@@ -19,17 +19,19 @@ There are a few parameters that can be changed at the top of the "music.py" file
 These include the length of the piece, the way the notes are played and settings for the sound system.
 
 
-It plays through Fluidsynth with an sf2 pack.
-Feel free to change the output system if you need / want something else.
+It plays through PyAudio.
+Feel free to change the sound output system if you need / want something else.
 
 
 __Installing Dependencies ==>__
 
-For ubuntu:
-$ sudo apt install python3 python3-pip fluidsynth
+For Debian / Ubuntu:
+$ sudo apt install python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio
 
 For other distributions:
-Use your package manager to install __python3 python3-pip fluidsynth__
+Use your package manager to install __python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio__
 
 Finally:
-$ pip3 install mingus
+$ pip3 install pyaudio (Not strictly required if you run the commands above)
+
+If these steps don't work for you, refer to [PyAduio's installation page](https://people.csail.mit.edu/hubert/pyaudio/ "PyAduio's installation page") and / or [Python's installation page](https://www.python.org/downloads/ "Python's installation page")
