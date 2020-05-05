@@ -6,18 +6,25 @@ from mingus.midi import fluidsynth
 # Path to sf2 file (Do not output sound if empty string):
 sf2 = ""
 # Default pack installed with fluidsynth:
-# sf2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
+sf2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
 
 # Tell what sound driver to use for the sf2 sound
 # ("alsa" may be needed for linux users)
 # Leave string empty for system default:
-sound_driver = ""
+sound_driver = "alsa"
 
 # Set to the desired time between / length of notes in seconds:
 seconds = 0.3
 
-# Set to the desired number of notes:
-stop_point = 100
+# Set to the desired number of phrases:
+stop_point = 10
+
+# Set to the desired pitch multiplier (greater value = greater pitch, lowest is 1)
+# Odd numbers seem to make it sound a bit less like horror music (:
+multiplier = 15
+
+# Set to the desired velocity when playing notes:
+velocity = 100
 # ----------
 
 
@@ -33,21 +40,24 @@ elif sf2 == "" and sound_driver == "":
 
 # ----------
 # Main mechanism:
-notes = [rint(1, 12)]
-notes.append((notes[-1]*rint(4, 6)))
-notes.append(int(notes[-1]/rint(4, 6)))
+notes = [rint(1, 6)]
+notes.append(int(notes[-1]*rint(4, 6)))
+len_phrase = rint(6, 18)
 for l1 in range(0, stop_point):
-    if notes[-1] < 2:
-        notes[-1] += 1
-    if notes[-1] > 6:
-        notes.append(int(notes[-rint(1, 3)]/rint(4, 6)))
-    elif notes[-1] < 5:
-        notes.append(int(notes[-rint(1, 3)]*rint(4, 6)))
-    else:
+    if len(notes) > len_phrase:
         if rint(1, 2) == 1:
-            notes.append(int(notes[-rint(1, 3)]*rint(4, 6)))
+            phrase_start = int((len(notes)/len_phrase)*rint(1, int(len(notes)/len_phrase)))
+            phrase_end = int((len(notes)/len_phrase)*(rint(1, int(len(notes)/len_phrase))+1))
+            phrase_notes = notes[phrase_start:phrase_end]
+            for app_notes in phrase_notes:
+                notes.append(app_notes)
+    for compose in range(0, len_phrase+1):
+        if notes[-1] < 2:
+            notes.append(notes[-1]+1)
+        if notes[-1] > rint(12, 24):
+            notes.append(int(notes[-rint(1, 2)]/rint(4, 6)))
         else:
-            notes.append(int(notes[-rint(1, 3)]/rint(4, 6)))
+            notes.append(int(notes[-rint(1, 2)]*rint(4, 6)))
 print(notes)
 # ----------
 
@@ -78,8 +88,6 @@ print(notes)
 
 if sf2 != "":
     for play in notes:
-        if play < 15:
-            fluidsynth.play_Note(play*5, 0, 100)
-        else:
-            fluidsynth.play_Note(play*2, 0, 100)
+        fluidsynth.play_Note(play*multiplier, 0, velocity),
+        fluidsynth.play_Note(play*multiplier/rint(2, 3), 0, velocity)
         sleep(seconds)
