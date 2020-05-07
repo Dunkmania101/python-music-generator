@@ -15,11 +15,11 @@ The actual mechanism is a bit more complex. For example, that list does not incl
 where it occasionally repeats previous segments for better sounding music.
 
 
-There are a few parameters that can be changed at the top of the "music.py" file.
-These include the length of the piece, the way the notes are played and settings for the sound system.
+There are a few parameters that can be changed at the top of the "musicgen.py" file.
+These include the length of the piece, some modifiers for the notes and settings for the sound system.
 
 
-It plays through PyAudio.
+It plays through PyAudio and can create .wav files.
 Feel free to change the sound output system if you need / want something else.
 
 
@@ -32,6 +32,6 @@ For other distributions:
 Use your package manager to install __python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio__
 
 Finally:
-$ pip3 install pyaudio (Not strictly required if you run the commands above)
+$ pip3 install pyaudio scipy
 
-If these steps don't work for you, refer to [PyAduio's installation page](https://people.csail.mit.edu/hubert/pyaudio/ "PyAduio's installation page") and / or [Python's installation page](https://www.python.org/downloads/ "Python's installation page")
+If these steps don't work for you, refer to [PyAduio's installation page](https://people.csail.mit.edu/hubert/pyaudio/ "PyAduio's installation page") and / or [Python's installation page](https://www.python.org/downloads/ "Python's installation page") and / or [SciPy's installation page](https://www.scipy.org/install.html "SciPy's installation page")
