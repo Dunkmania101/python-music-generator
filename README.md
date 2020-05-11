@@ -12,7 +12,8 @@ the result to the list.
 5. Do some output with the list.
 
 The actual mechanism is a bit more complex. For example, that list does not include its phrase system,
-where it occasionally repeats previous segments for better sounding music.
+where it occasionally repeats previous segments for better sounding music. It also leaves out the time signature system,
+used for better song structure.
 
 
 There are a few parameters that can be changed at the top of the "musicgen.py" file.
@@ -22,6 +23,9 @@ These include the length of the piece, some modifiers for the notes and settings
 It plays through PyAudio and can create .wav files.
 Feel free to change the sound output system if you need / want something else.
 
+
+There are sample wave outputs in the "sample_songs" folder.
+The one with the greatest number at the end is the newest, although there may have been smaller udpades since.
 
 __Installing Dependencies ==>__
 
