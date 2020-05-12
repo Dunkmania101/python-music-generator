@@ -54,14 +54,6 @@ bpm = int(bpm)
 
 # ----------
 # Main mechanism:
-def rep_phrase():
-    if rint(1, 3) == 1:
-        notes.append(notes[rint(0, len(notes)-1)])
-        if verbose:
-            print(f"Repeated phrase at {len(notes)-1}, containing {notes[-1]}")
-            print(f"Number of phrases: {len(notes)}")
-
-
 def mk_compose(note_in):
     if note_in < 2:
         note_in += 2
@@ -82,7 +74,7 @@ def run_mk_compose():
 
 
 sig = [rint(2, 12), 2**rint(1, 4)]
-notes = [[[[rint(1, 12), rint(1, sig[0])]]]]
+notes = [[[[int(rint(1, 12)*1.5), rint(1, sig[0])]]]]
 len_phrase = rint(6, 12)
 if verbose:
     print(f"Length of each phrase: {len_phrase}")
@@ -92,7 +84,11 @@ for linit_compose in range(1, len_phrase):
     if verbose:
         print(f"Added note: {notes[-1][-1][-1][0]} for {notes[-1][-1][-1][1]} beat(s)")
 for lcompose in range(1, stop_point):
-    rep_phrase()
+    if rint(1, 4) == 1:
+        notes.append(notes[rint(0, len(notes)-1)])
+        if verbose:
+            print(f"Repeated phrase at {len(notes)-1}, containing {notes[-1]}")
+            print(f"Number of phrases: {len(notes)}")
     run_mk_compose()
     if verbose:
         print(f"Added note: {notes[-1][-1][-1][0]} for {notes[-1][-1][-1][1]} beat(s)")
