@@ -2,7 +2,7 @@ from random import randint as rint
 # ----------
 # Whether to output sound (Leave empty string for none)
 # (Set to False to reduce wait time for wav file):
-out_sound = False
+out_sound = True
 
 
 # Path to output / name of wav file (Leave empty string to disable):
