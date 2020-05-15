@@ -7,7 +7,7 @@ out_sound = True
 
 # Path to output / name of wav file (Leave empty string to disable):
 out_wav = ""
-# out_wav = "sample_songs/out2.wav"
+out_wav = "sample_songs/out3.wav"
 
 
 # Whether to use a sine triangle (Use a sine wave if False):
@@ -34,7 +34,7 @@ bpm = 360
 volume = 1.0
 
 
-# Whether to keep notes within the range of an 88-key piano:
+# Whether to keep notes within a reasonable range:
 fix_pitch = True
 
 
@@ -57,7 +57,7 @@ bpm = int(bpm)
 def mk_compose(note_in):
     if note_in < 2:
         note_in += 2
-    if note_in > rint(6, 12):
+    if note_in > 12:
         return(int(note_in/rint(2, 3)))
     else:
         return(int(note_in*rint(2, 3)))
@@ -73,6 +73,10 @@ def run_mk_compose():
         notes.append([[[mk_compose(notes[-1][-1][-1][0]), rint(1, sig[0])]]])
 
 
+def rep_bar():
+    notes.append(notes[-1][0:-rint(1, int(len(notes[-1])/2))])
+
+
 sig = [rint(2, 12), 2**rint(1, 4)]
 notes = [[[[int(rint(1, 12)*1.5), rint(1, sig[0])]]]]
 len_phrase = rint(6, 12)
@@ -84,6 +88,7 @@ for linit_compose in range(1, len_phrase):
     if verbose:
         print(f"Added note: {notes[-1][-1][-1][0]} for {notes[-1][-1][-1][1]} beat(s)")
 for lcompose in range(1, stop_point):
+    rep_bar()
     if rint(1, 4) == 1:
         notes.append(notes[rint(0, len(notes)-1)])
         if verbose:
@@ -109,6 +114,7 @@ for index, lmultiply in enumerate(notes):
         for index2, lmultiply12 in enumerate(lmultiply1):
             notes[index][index1][index2][0] *= pitch_multiplier
 print("----------")
+print(f"Key signature: {sig[0]}/{sig[1]}")
 print(f"Final notes (numerical): {notes}")
 print("----------")
 # ----------
