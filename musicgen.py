@@ -7,7 +7,7 @@ out_sound = True
 
 # Path to output / name of wav file (Leave empty string to disable):
 out_wav = ""
-# out_wav = "sample_songs/out2.wav"
+# out_wav = "sample_songs/out4.wav"
 
 
 # Whether to use a sine triangle (Use a sine wave if False):
