@@ -7,7 +7,7 @@ out_sound = True
 
 # Path to output / name of wav file (Leave empty string to disable):
 out_wav = ""
-out_wav = "sample_songs/out3.wav"
+# out_wav = "sample_songs/out2.wav"
 
 
 # Whether to use a sine triangle (Use a sine wave if False):
@@ -58,9 +58,9 @@ def mk_compose(note_in):
     if note_in < 2:
         note_in += 2
     if note_in > 12:
-        return(int(note_in/rint(2, 3)))
+        return(int(note_in/rint(3, 5)))
     else:
-        return(int(note_in*rint(2, 3)))
+        return(int(note_in*rint(3, 5)))
 
 
 def run_mk_compose():
