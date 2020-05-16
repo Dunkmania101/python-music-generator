@@ -25,17 +25,37 @@ Feel free to change the sound output system if you need / want something else.
 
 
 There are sample wave outputs in the "sample_songs" folder.
-The one with the greatest number at the end is the newest, although there may have been smaller udpades since.
+The one with the greatest number at the end is the newest, although there may have been smaller udpades to the script since.
+
+When running the commands below, be sure not to include the "$".
+
+
 
 __Installing Dependencies ==>__
 
 For Debian / Ubuntu:
 $ sudo apt install python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio
+$ sudo apt install git (Only needed if cloning)
 
 For other distributions:
-Use your package manager to install __python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio__
+Use your package manager to install __python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio (Optional:) git__ or equivalent.
 
 Finally:
 $ pip3 install pyaudio scipy
 
-If these steps don't work for you, refer to [PyAduio's installation page](https://people.csail.mit.edu/hubert/pyaudio/ "PyAduio's installation page") and / or [Python's installation page](https://www.python.org/downloads/ "Python's installation page") and / or [SciPy's installation page](https://www.scipy.org/install.html "SciPy's installation page")
+If these steps don't work for / apply to you, refer to [Python's installation page](https://www.python.org/downloads/ "Python's installation page") and / or [PyAduio's installation page](https://people.csail.mit.edu/hubert/pyaudio/ "PyAduio's installation page") and / or [SciPy's installation page](https://www.scipy.org/install.html "SciPy's installation page")
+
+
+
+__Usage ==>__
+
+1. If needed, install the required dependencies as shown above.
+2. Download at least the "musicgen.py" file to the desired location for running. You can also clone this entire repository with:
+$ git clone https://github.com/Dunkmania101/python-music-generator.git
+3. If you wish to change some settings, edit the variables at the top of the downloaded "musicgen.py" file.
+4. From the directory the file is in, run the command:
+$ python3 musicgen.py
+5. Enjoy!
+
+
+Also, I don't drink coffee ;)
