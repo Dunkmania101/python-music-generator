@@ -10,7 +10,7 @@ out_sound = True
 # Path to output / name of wav file (Leave the string empty to disable)
 # Ensure any folders already exist but the wave file does not!:
 out_wav = ""
-# out_wav = "sample_songs/out6.wav"
+# out_wav = "sample_songs/out7.wav"
 
 
 # Whether to output lots of details or just the notes (True or False):
@@ -22,8 +22,8 @@ stop_point = 15
 
 
 # Set to the desired pitch multiplier (greater value = greater pitch; lowest is 1)
-# CURRENTLY ANYTHING GREATER THAN TWO(2) IS INSANELY HIGH PITCHED!!!:
-pitch_multiplier = 2
+# CURRENTLY ANYTHING GREATER THAN ONE(1) IS INSANELY HIGH PITCHED!!!:
+pitch_multiplier = 1
 
 
 # Set to the desired playback BPM:
@@ -36,7 +36,7 @@ volume = 0.5
 
 # Whether to keep notes within a reasonable range (True or False)
 # This setting is typically not needed when pitch_multiplier < 2:
-fix_pitch = False
+fix_pitch = True
 # End Of Config
 # ----------
 
@@ -55,27 +55,27 @@ def first_note():
     return notes[0][0][0][0]
 
 
-def last_note():
-    return notes[-1][-1][-1][-1]
-
-
 def last_bar():
     return notes[-1][-1]
+
+
+def last_note():
+    return last_bar()[-1][-1]
 
 
 def mk_compose():
     last_bar()[0].append([scale[rint(1, 7)]])
     last_note().append(int(sig[0]/last_note()[0]/2)+1)
-    if last_bar()[0].count(-1) < len(last_bar()[0])/1.5:
+    if last_bar()[0].count(-1) < len(last_bar()[0])/1.5 and rint(1, 2) == 1:
         last_bar()[0].append([-1])
         last_note().append(int(sig[0]/last_bar()[0][-2][0]/3)+1)
 
 
 def mk_compose_ud():
     if up_down == 1:
-        last_bar()[0].append([scale[rint(4, 7)]])
+        last_bar()[-1].append([scale[rint(4, 7)]])
     else:
-        last_bar()[0].append([scale[rint(1, 4)]])
+        last_bar()[-1].append([scale[rint(1, 4)]])
     last_note().append(int(sig[0]/last_note()[0]/2)+1)
 
 
@@ -105,10 +105,14 @@ while len(notes) < stop_point:
         }
     while sum([b[1] for b in last_bar()[0]]) < sig[0]/2:
         mk_compose()
-    last_bar().append(last_bar()[0])
     up_down = rint(1, 2)
     while sum([b[1] for b in last_bar()[0]]) < sig[0]:
         mk_compose_ud()
+    for lvary in range(0, rint(0, 5)):
+        last_bar().append(last_bar()[-1][0:int(len(last_bar()[-1])/2)])
+        up_down = rint(1, 2)
+        while sum([b[1] for b in last_bar()[-1]]) < sig[0]:
+            mk_compose_ud()
     notes.append([[[[first_note()[0]]]]])
     last_note().append(int(sig[0]/last_note()[0]/2))
 
@@ -188,17 +192,18 @@ print("----------")
 if out_sound or out_wav != "":
     import numpy as np
     import pyaudio
-    sr = 44100
     samples = []
     save_volume = volume
+    sr = 44100
     for app_samples in notes:
         for app_samples1 in app_samples:
             for app_samples2 in app_samples1:
                 for app_samples3 in app_samples2:
-                    if app_samples3 == -1:
-                        volume = 0
+                    if app_samples3[0] == -1:
+                        freq = 0
                     else:
                         freq = 27.5*(2**(app_samples3[0]/12))
+                        volume = save_volume
                     samples.append(
                         np.sin(2*np.pi*np.arange(sr*app_samples3[1]*(60/bpm))*freq/sr)
                         .astype(np.float32)*volume)
