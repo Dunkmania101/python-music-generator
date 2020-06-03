@@ -39,16 +39,16 @@ When running the commands below, be sure not to include the "$".
 
 
 __Installing Dependencies ==>__
-
 For Debian / Ubuntu:
-$ sudo apt install python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio
+$ sudo apt install python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio fluidsynth
 $ sudo apt install git (Only needed if cloning)
+$ pip3 install mingus numpy pyaudio
 
 For other distributions:
 Use your package manager to install __python3 python3-pip python3-all-dev portaudio19-dev python3-pyaudio (Optional:) git__ or equivalent.
 
 
-If these steps don't work for / apply to you, refer to [Python's installation page](https://www.python.org/downloads/ "Python's installation page") and / or [PyAduio's installation page](https://people.csail.mit.edu/hubert/pyaudio/ "PyAduio's installation page")
+If these steps don't work for / apply to you, refer to [Python's installation page](https://www.python.org/downloads/ "Python's installation page") and / or [PyAduio's installation page](https://people.csail.mit.edu/hubert/pyaudio/ "PyAduio's installation page") and / or ["Mingus's Fluidsynth Page"](https://bspaans.github.io/python-mingus/doc/wiki/tutorialSetup.html?highlight=playback "Mingus's Fluidsynth Page")
 
 
 
