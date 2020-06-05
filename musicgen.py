@@ -19,11 +19,11 @@ audio_driver = ""
 # Path to output / name of wav file (Leave the string empty to disable)
 # Ensure any folders already exist but the wave file does not!:
 out_wav = ""
-# out_wav = "out7.wav"
+# out_wav = "sample_songs/out8.wav"
 
 
 # Whether to output the actual keys or just the numerical notes:
-out_keys = False
+out_keys = True
 
 
 # Whether to output lots of details or just the notes (True or False):
@@ -31,16 +31,12 @@ verbose = False
 
 
 # Set to the desired number of phrases:
-stop_point = 15
+stop_point = 8
 
 
 # Set to the desired pitch multiplier (greater value = greater pitch; lowest is 1)
 # CURRENTLY ANYTHING GREATER THAN ONE(1) IS INSANELY HIGH PITCHED!!!:
 pitch_multiplier = 1
-
-
-# Set to the desired playback BPM:
-bpm = 120
 
 
 # Volume (0.x for lower, x.x for higher, 1.0 is default):
@@ -58,14 +54,12 @@ fix_pitch = True
 # Prevent breakage from user error in parameters, where possible:
 stop_point = int(stop_point)
 pitch_multiplier = int(pitch_multiplier)
-bpm = int(bpm)
 # ----------
 
 
 # ----------
 # Main mechanism:
 # -----
-# Define lots of functions:
 def run_lnotes(code):
     def lnotes_pos():
         return notes[index][index1][index2][index3]
@@ -81,10 +75,16 @@ def beats_per_bar():
 
 
 def pick_scale(scale_base):
-    if rint(1, 2) == 1:
-        return first_note()[0] + scale[scale_base]
+    if min_maj == 1:
+        if rint(1, 4) == 1:
+            return first_note()[0] - scale[scale_base]
+        else:
+            return first_note()[0] + scale[scale_base]
     else:
-        return first_note()[0] - scale[scale_base]
+        if rint(1, 4) == 1:
+            return first_note()[0] + scale[scale_base]
+        else:
+            return first_note()[0] - scale[scale_base]
 
 
 def first_note():
@@ -122,15 +122,12 @@ def app_beat():
 
 
 def mk_compose():
-    # Append a note from the scale of the first note:
     last_subbar().append([pick_scale(rint(1, 7)), app_beat()])
-    # Append a rest if there aren't too many:
     if last_subbar().count(-1) < len(last_subbar())/1.5 and rint(1, 2) == 1:
         last_subbar().append([-1, app_beat()])
 
 
 def mk_compose_ud(up_down):
-    # Same as mk_compose but for the high or low end of the scale only:
     if up_down == 1:
         last_subbar().append([pick_scale(rint(4, 7)), app_beat()])
     else:
@@ -155,12 +152,13 @@ def compose_phrase():
 # -----
 # Actually run now:
 sig = [rint(9, 18), 2**rint(1, 4)]
-notes = [[[[[rint(24, 36)]]]]]
+notes = [[[[[rint(30, 42)]]]]]
+notes = [[[[[rint(30, 42)]]]]]
 last_note().append(int(beats_per_bar()/last_note()[0]))
 bpm = first_note()[0] * 7
 while len(notes) < stop_point:
-    # print(notes)
     if rint(1, 2) == 1:
+        min_maj = 1
         scale = {
             1: 2,
             2: 2,
@@ -171,6 +169,7 @@ while len(notes) < stop_point:
             7: 10
         }
     else:
+        min_maj = 2
         scale = {
             1: 2,
             2: 3,
@@ -181,6 +180,10 @@ while len(notes) < stop_point:
             7: 12
         }
     compose_phrase()
+    if rint(1, 2) == 1:
+        notes.append(notes[0])
+    if rint(1, 2) == 1:
+        notes.append(notes[rint(0, len(notes)-1)])
     if rint(1, 2) == 1:
         notes.append([[[[first_note()[0], app_beat()]]]])
     else:
@@ -255,8 +258,7 @@ if out_keys:
     print("----------")
     print(f"Key signature: {sig[0]}/{sig[1]}")
     print(f"Final notes (normal):")
-    for lkey_out in key_out:
-        print(lkey_out)
+    print(key_out)
     print("----------")
 # ----------
 
@@ -266,15 +268,14 @@ if out_keys:
 if out_sound or out_wav != "":
     # If you see a warning about numpy not being used,
     # That's just because it's in a string to be passed to a function :)
+    from time import sleep
     import numpy as np
     if out_wav:
         import wave
-    import pyaudio
     sr = 44100
     samples = []
     if sf2 != "":
         from mingus.midi import fluidsynth
-        from time import sleep
         if audio_driver != "":
             fluidsynth.init(sf2, audio_driver)
         else:
@@ -285,9 +286,12 @@ if lrep_code3[0] == -1:
     sleep(lrep_code3[1]*(60/bpm))
 else:
     fluidsynth.play_Note(lrep_code3[0]-1, 0, volume*100)
+    sleep(lrep_code3[1]*(60/bpm))
             """
         )
     if out_wav != "" or sf2 == "":
+        import pyaudio
+        p = pyaudio.PyAudio()
         run_lnotes(
             """
 if lrep_code3[0] == -1:
@@ -299,10 +303,7 @@ samples.append(
     .astype(np.float32)*volume)
         """
         )
-    if sf2 == "":
-        p = pyaudio.PyAudio()
         if out_sound:
-            from time import sleep
             for index, play in enumerate(samples):
                 if verbose:
                     print(f"Playing note {index+1} of {len(samples)+1} which is sample:")
@@ -315,14 +316,14 @@ samples.append(
                 stream.stop_stream()
                 stream.close()
                 sleep(0.02)
+        if out_wav != "":
+            wf = wave.open(out_wav, 'wb')
+            wf.setnchannels(1)
+            wf.setsampwidth(p.get_sample_size(pyaudio.paFloat32))
+            wf.setframerate(sr)
+            wf.writeframes(b''.join(samples))
+            wf.close()
         p.terminate()
-    if out_wav != "":
-        wf = wave.open(out_wav, 'wb')
-        wf.setnchannels(1)
-        wf.setsampwidth(p.get_sample_size(pyaudio.paFloat32))
-        wf.setframerate(sr)
-        wf.writeframes(b''.join(samples))
-        wf.close()
 print("Done!")
 print(f"I wrote {len(notes)} phrases,")
 print(f"{sum([sum([len(b) for b in p]) for p in notes])} bars,")
