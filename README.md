@@ -20,7 +20,7 @@ It used to work that way. Now it does this:
 
 
 The actual mechanism is a bit more complex. For example, that list does not include its phrase system,
-where it occasionally repeats previous segments for better sounding music.
+where it occasionally repeats previous segments for more cohesive music.
 
 
 There are a few parameters that can be changed at the top of the "musicgen.py" file.
