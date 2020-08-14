@@ -1,4 +1,5 @@
 from random import randint as rint
+
 # ----------
 # Config:
 # ----------
@@ -8,18 +9,18 @@ out_sound = True
 
 # Path to sf2 file (Leave the string empty to disable, plays with sine wave if disabled):
 sf2 = ""
-# sf2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
+sf2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
 
 
 # Audio driver to use (Leave the stringe empty for system default, Linux users may need to specify alsa):
 audio_driver = ""
-# audio_driver = "alsa"
+audio_driver = "alsa"
 
 
 # Path to output / name of wav file (Leave the string empty to disable)
 # Ensure any folders already exist but the wave file does not!:
 out_wav = ""
-# out_wav = "sample_songs/out8.wav"
+# out_wav = "sample_songs/out9.wav"
 
 
 # Whether to output the actual keys or just the numerical notes:
@@ -30,13 +31,21 @@ out_keys = True
 verbose = False
 
 
+# Whether to print progress:
+progress = True
+
+
 # Set to the desired number of phrases:
-stop_point = 8
+stop_point = 14
 
 
-# Set to the desired pitch multiplier (greater value = greater pitch; lowest is 1)
+# Set to the desired pitch multiplier (greater value = greater pitch; minimum is 1)
 # CURRENTLY ANYTHING GREATER THAN ONE(1) IS INSANELY HIGH PITCHED!!!:
 pitch_multiplier = 1
+
+
+# Set to the desired speed multiplier (greater value = greater speed; minimum is 1):
+speed_multiplier = 1
 
 
 # Volume (0.x for lower, x.x for higher, 1.0 is default):
@@ -60,31 +69,9 @@ pitch_multiplier = int(pitch_multiplier)
 # ----------
 # Main mechanism:
 # -----
-def run_lnotes(code):
-    def lnotes_pos():
-        return notes[index][index1][index2][index3]
-    for index, lrep_code in enumerate(notes):
-        for index1, lrep_code1 in enumerate(lrep_code):
-            for index2, lrep_code2 in enumerate(lrep_code1):
-                for index3, lrep_code3 in enumerate(lrep_code2):
-                    exec(code)
-
-
+# Name Functions:
 def beats_per_bar():
     return sig[0]
-
-
-def pick_scale(scale_base):
-    if min_maj == 1:
-        if rint(1, 4) == 1:
-            return first_note()[0] - scale[scale_base]
-        else:
-            return first_note()[0] + scale[scale_base]
-    else:
-        if rint(1, 4) == 1:
-            return first_note()[0] + scale[scale_base]
-        else:
-            return first_note()[0] - scale[scale_base]
 
 
 def first_note():
@@ -111,39 +98,75 @@ def last_note():
     return last_subbar()[-1]
 
 
+# Action Functions:
+def pick_scale_first(scale_base):
+    if min_maj == 1:
+        if rint(1, 4) == 1:
+            return first_note()[0] - scale[scale_base]
+        else:
+            return first_note()[0] + scale[scale_base]
+    else:
+        if rint(1, 4) == 1:
+            return first_note()[0] + scale[scale_base]
+        else:
+            return first_note()[0] - scale[scale_base]
+
+
+def pick_scale_ch_prog(scale_base):
+    if min_maj == 1:
+        if rint(1, 4) == 1:
+            return ch_prog[count] - scale[scale_base]
+        else:
+            return ch_prog[count] + scale[scale_base]
+    else:
+        if rint(1, 4) == 1:
+            return ch_prog[count] + scale[scale_base]
+        else:
+            return ch_prog[count] - scale[scale_base]
+
+
 def app_beat():
-    if int(beats_per_bar()/last_note()[0]) < 1 or len(notes) <= 1:
+    if int(beats_per_bar() / last_note()[0]) < 1 or len(notes) <= 1:
         return rint(1, 2)
     else:
-        if int(beats_per_bar()/last_note()[0]) + sum([b[1] for b in last_subbar()]) > beats_per_bar():
-            return beats_per_bar() - sum([b[1] for b in last_subbar()])
+        if int(beats_per_bar() / last_note()[0]) + sum([b[1] for b in last_subbar()]) > beats_per_bar():
+            return abs(beats_per_bar() - sum([b[1] for b in last_subbar()]))
         else:
-            return int(beats_per_bar()/last_note()[0])
+            return int(beats_per_bar() / last_note()[0])
 
 
 def mk_compose():
-    last_subbar().append([pick_scale(rint(1, 7)), app_beat()])
+    last_subbar().append([pick_scale_ch_prog(rint(1, 7)), app_beat()])
     if last_subbar().count(-1) < len(last_subbar())/1.5 and rint(1, 2) == 1:
         last_subbar().append([-1, app_beat()])
 
 
 def mk_compose_ud(up_down):
     if up_down == 1:
-        last_subbar().append([pick_scale(rint(4, 7)), app_beat()])
+        last_subbar().append([pick_scale_ch_prog(rint(4, 7)), app_beat()])
     else:
-        last_subbar().append([pick_scale(rint(1, 4)), app_beat()])
+        last_subbar().append([pick_scale_ch_prog(rint(1, 4)), app_beat()])
     if last_subbar().count(-1) < len(last_subbar())/1.5 and rint(1, 2) == 1:
         last_subbar().append([-1, app_beat()])
 
 
 def compose_phrase():
-    while sum([b[1] for b in last_subbar()]) < beats_per_bar()/2:
+    global count
+    count = 0
+    while sum([b[1] for b in last_subbar()]) < beats_per_bar():
         mk_compose()
+        count += 1
+        if count > len(ch_prog) - 1:
+            count = 0
     up_down = rint(1, 2)
+    count = 0
     while sum([b[1] for b in last_subbar()]) < beats_per_bar():
         mk_compose_ud(up_down)
+        count += 1
+        if count > len(ch_prog):
+            count = 0
     for lvary in range(0, rint(0, 6)):
-        last_bar().append(last_subbar()[0:int(len(last_subbar())/2)])
+        last_bar().append(last_subbar()[0:int(len(last_subbar())/rint(1, 3))])
         up_down = rint(1, 2)
         while sum([b[1] for b in last_subbar()]) < sig[0]:
             mk_compose_ud(up_down)
@@ -153,11 +176,19 @@ def compose_phrase():
 # Actually run now:
 sig = [rint(9, 18), 2**rint(1, 4)]
 notes = [[[[[rint(30, 42)]]]]]
-notes = [[[[[rint(30, 42)]]]]]
-last_note().append(int(beats_per_bar()/last_note()[0]))
-bpm = first_note()[0] * 7
+if int(beats_per_bar() / last_note()[0]) < 1 or len(notes) <= 1:
+    last_note().append(rint(1, 2))
+else:
+    last_note().append(int(beats_per_bar() / last_note()[0]))
+bpm = first_note()[0] * rint(6, 9)
+if sf2 != "":
+    bpm *= 2
+if rint(1, 2) == 1:
+    maj_chance = 4
+else:
+    maj_chance = 4
 while len(notes) < stop_point:
-    if rint(1, 2) == 1:
+    if rint(1, maj_chance) == 1:
         min_maj = 1
         scale = {
             1: 2,
@@ -179,6 +210,9 @@ while len(notes) < stop_point:
             6: 10,
             7: 12
         }
+    ch_prog = []
+    for lch_prog in range(0, rint(1, 6)):
+        ch_prog.append(pick_scale_first(rint(1, 7)))
     compose_phrase()
     if rint(1, 2) == 1:
         notes.append(notes[0])
@@ -191,27 +225,33 @@ while len(notes) < stop_point:
 
 
 if fix_pitch:
-    run_lnotes(
-        """
-if lnotes_pos()[0] != -1:
-    while lnotes_pos()[0] < 24:
-        lnotes_pos()[0] += 12
-    while lnotes_pos()[0] > 48:
-        lnotes_pos()[0] -= 12
-        """
-        )
-
+    for index, lrep_code in enumerate(notes):
+        for index1, lrep_code1 in enumerate(lrep_code):
+            for index2, lrep_code2 in enumerate(lrep_code1):
+                for index3, lrep_code3 in enumerate(lrep_code2):
+                    if notes[index][index1][index2][index3][0] != -1:
+                        while notes[index][index1][index2][index3][0] < 24:
+                            notes[index][index1][index2][index3][0] += 12
+                        while notes[index][index1][index2][index3][0] > 60:
+                            notes[index][index1][index2][index3][0] -= 12
 
 if pitch_multiplier > 1:
-    run_lnotes(
-        """
-if lnotes_pos()[0] != -1:
-    lnotes_pos()[0] += int(12*(pitch_multiplier-1))
-        """
-    )
+    for index, lrep_code in enumerate(notes):
+        for index1, lrep_code1 in enumerate(lrep_code):
+            for index2, lrep_code2 in enumerate(lrep_code1):
+                for index3, lrep_code3 in enumerate(lrep_code2):
+                    if notes[index][index1][index2][index3][0] != -1:
+                        notes[index][index1][index2][index3][0] += 12*(pitch_multiplier-1)
+
+# Just for setting the output manually, not part of the main program:
+# notes = [[[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[-1, 1], [60, 1], [-1, 1], [40, 1], [-1, 2], [43, 1], [45, 1], [47, 2], [-1, 2]], [[-1, 1], [60, 1], [-1, 1], [40, 2], [43, 2], [-1, 2], [43, 2], [-1, 2]], [[-1, 1], [60, 1], [-1, 1], [40, 2], [53, 1], [-1, 1], [53, 1], [-1, 2]], [[-1, 1], [60, 1], [-1, 1], [40, 2], [53, 1], [-1, 1], [53, 1], [-1, 2]], [[-1, 1], [60, 1], [-1, 1], [40, 2], [48, 2], [48, 1], [57, 1], [-1, 2]], [[-1, 1], [60, 1], [-1, 1], [40, 2], [48, 2], [43, 2], [-1, 2]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[-1, 1], [33, 1], [35, 1], [-1, 1], [36, 1], [-1, 2], [28, 2], [-1, 2]], [[-1, 1], [33, 1], [27, 2], [47, 1], [25, 2], [-1, 2], [47, 2]], [[-1, 1], [33, 1], [27, 2], [30, 1], [37, 2], [37, 1], [32, 1], [30, 1]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[-1, 2], [26, 1], [-1, 1], [45, 2], [-1, 1], [31, 2], [-1, 2]], [[-1, 2], [26, 1], [-1, 1], [45, 2], [-1, 1], [31, 2], [-1, 2]], [[-1, 2], [26, 1], [-1, 1], [45, 2], [-1, 1], [31, 2], [-1, 2]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[-1, 1], [33, 1], [35, 1], [-1, 1], [36, 1], [-1, 2], [28, 2], [-1, 2]], [[-1, 1], [33, 1], [27, 2], [47, 1], [25, 2], [-1, 2], [47, 2]], [[-1, 1], [33, 1], [27, 2], [30, 1], [37, 2], [37, 1], [32, 1], [30, 1]]]], [[[[-1, 2], [31, 2], [-1, 1], [29, 2], [25, 1], [19, 1], [-1, 2]], [[-1, 2], [31, 2], [-1, 1], [26, 1], [-1, 1], [31, 2], [-1, 2]], [[-1, 2], [31, 2], [-1, 1], [20, 1], [40, 1], [20, 1], [16, 2]]]], [[[[-1, 1], [47, 2], [-1, 2], [50, 1], [50, 2], [48, 2]], [[-1, 1], [47, 2], [47, 1], [-1, 2], [40, 2], [47, 2], [-1, 1]], [[-1, 1], [47, 2], [47, 1], [-1, 2], [40, 2], [47, 2], [-1, 1]], [[-1, 1], [47, 2], [47, 1], [52, 1], [-1, 2], [54, 2], [-1, 2]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[38, 1], [31, 1], [-1, 1], [26, 1], [29, 2], [-1, 1], [28, 1], [-1, 2]], [[38, 1], [31, 1], [-1, 1], [26, 1], [40, 2], [-1, 2], [28, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [21, 2], [45, 1], [21, 2], [21, 1], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [26, 1], [26, 1], [26, 2], [30, 1], [26, 1], [30, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]], [[38, 1], [31, 1], [-1, 1], [30, 2], [28, 1], [-1, 1], [30, 2], [-1, 1]]]], [[[[-1, 1]]]]]
+# sig = [10, 4]
+# bpm = 190
+
 print("----------")
-print(f"Key signature: {sig[0]}/{sig[1]}")
 print(f"Final notes (numerical): {notes}")
+print(f"Key signature: {sig[0]}/{sig[1]}")
+print(f"BPM: {bpm}")
 print("----------")
 # ----------
 
@@ -266,64 +306,72 @@ if out_keys:
 # ----------
 # Output result if enabled:
 if out_sound or out_wav != "":
-    # If you see a warning about numpy not being used,
-    # That's just because it's in a string to be passed to a function :)
     from time import sleep
     import numpy as np
     if out_wav:
         import wave
+    import pyaudio
+    p = pyaudio.PyAudio()
     sr = 44100
     samples = []
     if sf2 != "":
-        from mingus.midi import fluidsynth
-        if audio_driver != "":
-            fluidsynth.init(sf2, audio_driver)
+        from mingus.midi import pyfluidsynth
+        fs = pyfluidsynth.Synth(samplerate=sr)
+        fsf2 = fs.sfload(sf2)
+        fs.program_select(0, fsf2, 0, 0)
+        for index, lrep_code in enumerate(notes):
+            for index1, lrep_code1 in enumerate(lrep_code):
+                for index2, lrep_code2 in enumerate(lrep_code1):
+                    for index3, lrep_code3 in enumerate(lrep_code2):
+                        if lrep_code3[0] != -1:
+                            fs.noteon(0, lrep_code3[0], volume*100)
+                        samples.append(pyfluidsynth.raw_audio_string(np.array(fs.get_samples(int((sr * lrep_code3[1] * (60/bpm)) / speed_multiplier)))))
+                        if lrep_code3[0] != -1:
+                            fs.noteoff(0, lrep_code3[0])
+        fs.delete()
+
+    if sf2 == "":
+        for index, lrep_code in enumerate(notes):
+            for index1, lrep_code1 in enumerate(lrep_code):
+                for index2, lrep_code2 in enumerate(lrep_code1):
+                    for index3, lrep_code3 in enumerate(lrep_code2):
+                        if lrep_code3[0] == -1:
+                            freq = 0
+                        else:
+                            freq = 27.5*(2**(lrep_code3[0]/12))
+                        samples.append((
+                            np.sin(2*np.pi*np.arange(int((sr*lrep_code3[1]*(60/bpm) / speed_multiplier)))
+                                    * freq/sr)
+                            .astype(np.float32)*volume).tobytes()
+                            )
+
+    if out_sound:
+        if sf2 == "":
+            stream = p.open(format=pyaudio.paFloat32,
+                            channels=2,
+                            rate=sr,
+                            output=True)
         else:
-            fluidsynth.init(sf2)
-        run_lnotes(
-            """
-if lrep_code3[0] == -1:
-    sleep(lrep_code3[1]*(60/bpm))
-else:
-    fluidsynth.play_Note(lrep_code3[0]-1, 0, volume*100)
-    sleep(lrep_code3[1]*(60/bpm))
-            """
-        )
-    if out_wav != "" or sf2 == "":
-        import pyaudio
-        p = pyaudio.PyAudio()
-        run_lnotes(
-            """
-if lrep_code3[0] == -1:
-    freq = 0
-else:
-    freq = 27.5*(2**(lrep_code3[0]/12))
-samples.append(
-    np.sin(2*np.pi*np.arange(sr*lrep_code3[1]*(60/bpm))*freq/sr)
-    .astype(np.float32)*volume)
-        """
-        )
-        if out_sound:
-            for index, play in enumerate(samples):
-                if verbose:
-                    print(f"Playing note {index+1} of {len(samples)+1} which is sample:")
-                    print(play)
-                stream = p.open(format=pyaudio.paFloat32,
-                                channels=1,
-                                rate=sr,
-                                output=True)
-                stream.write((play).tobytes())
-                stream.stop_stream()
-                stream.close()
-                sleep(0.02)
-        if out_wav != "":
-            wf = wave.open(out_wav, 'wb')
-            wf.setnchannels(1)
-            wf.setsampwidth(p.get_sample_size(pyaudio.paFloat32))
-            wf.setframerate(sr)
-            wf.writeframes(b''.join(samples))
-            wf.close()
-        p.terminate()
+            stream = p.open(format=pyaudio.paInt16,
+                            channels=2,
+                            rate=sr,
+                            output=True)
+        for index, play in enumerate(samples):
+            if progress:
+                print(f"Playing note {index+1} of {len(samples)+1} which is sample:")
+            if verbose:
+                print(play)
+            stream.write(play)
+            sleep(0.02)
+        stream.close()
+    if out_wav != "":
+        wf = wave.open(out_wav, 'wb')
+        wf.setnchannels(1)
+        wf.setsampwidth(p.get_sample_size(pyaudio.paFloat32))
+        wf.setframerate(sr)
+        wf.writeframes(b''.join(samples))
+        wf.close()
+    p.terminate()
 print("Done!")
 print(f"I wrote {len(notes)} phrases,")
 print(f"{sum([sum([len(b) for b in p]) for p in notes])} bars,")
