@@ -9,12 +9,7 @@ out_sound = True
 
 # Path to sf2 file (Leave the string empty to disable, plays with sine wave if disabled):
 sf2 = ""
-sf2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
-
-
-# Audio driver to use (Leave the stringe empty for system default, Linux users may need to specify alsa):
-audio_driver = ""
-audio_driver = "alsa"
+# sf2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
 
 
 # Path to output / name of wav file (Leave the string empty to disable)
@@ -358,9 +353,9 @@ if out_sound or out_wav != "":
                             output=True)
         for index, play in enumerate(samples):
             if progress:
-                print(f"Playing note {index+1} of {len(samples)+1} which is sample:")
+                print(f"Playing note {index+1} of {len(samples)}")
             if verbose:
-                print(play)
+                print(f"Sample:\n{play}")
             stream.write(play)
             sleep(0.02)
         stream.close()
